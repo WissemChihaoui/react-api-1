@@ -1,24 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useEffect} from 'react'
+import {BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import './index.css'
 
-function App() {
+import {fetchCryptos} from './utils/api'
+const App =() =>{
+  const [cryptos, setCryptos] = useState([])
+  const [favorites, setFavorites] = useState([])
+
+  useEffect(() => {
+    const fetchCryptoData = async () => {
+      const data = await fetchCryptos();
+      setCryptos(data);
+      console.log(cryptos);
+    }
+    fetchCryptoData();
+    
+  }, [])
+
+  const toggleFavorite = (cryptoId) => {
+    let updateFavorites;
+    if(favorites.includes(cryptoId)){
+      updateFavorites = favorites.filter(id => id !== cryptoId)
+    }else{
+      updateFavorites = [...favorites, cryptoId]
+    }
+    setFavorites(updateFavorites);
+  }
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Router>
+        <div className='app'>
+          <Navbar />
+          <h1>Tableau de bord des cryptomonnaies</h1>
+          <Routes>
+            <Route path='/' element={<Home cryptos={cryptos} toggleFavorite={toggleFavorite} favorites={favorites}/>} />
+            <Route path='/favorites' element={<Home />} />
+          </Routes>
+        </div>
+      </Router>
+    </>
   );
 }
 
